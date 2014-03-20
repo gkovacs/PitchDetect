@@ -22,7 +22,15 @@ div.vague { color: lightgrey; }
 </head>
 <body>
 <script src="http://cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></script>
+<script src="real.js"></script>
+<script src="complex.js"></script>
+<script src="pitch.js"></script>
+<script src="jquery-1.11.0.min.js"></script>
 <script src="js/pitchdetect.js"></script>
+
+<span id="currentPitch">no pitch yet</span>
+
+<br><br>
 
 <button onclick="this.innerText = togglePlayback()">use demo audio</button>
 <button onclick="toggleLiveInput()">use live input</button>

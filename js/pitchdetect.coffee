@@ -119,6 +119,12 @@ toggleLiveInput = ->
   }, gotStream
   return
 
+toggleLiveInput2 = ->
+  getUserMedia {
+    audio: true
+  }, gotStream2
+  return
+
 togglePlayback = ->
   now = audioContext.currentTime
   if isPlaying
@@ -215,10 +221,37 @@ autoCorrelate = (buf, sampleRate) ->
 
   # var best_frequency = sampleRate/best_offset;
 
+
+pitchAnalyser = new PitchAnalyzer(2048)
+
+noteAge = 0
+prevNote = 0
+
 updatePitch = (time) ->
   cycles = new Array
   analyser.getByteTimeDomainData buf
   
+  pitchAnalyser.input(buf)
+  pitchAnalyser.process()
+  tone = pitchAnalyser.findTone()
+  if tone? and tone.stabledb > -20
+    #console.log tone.freq
+    #console.log tone
+    note = noteFromPitch(tone.freq)
+    #noteFixed = noteFromPitchCorrected(tone.freq)
+    if Math.abs(note-prevNote) < 1
+      noteAge += 1
+    else
+      noteAge = 0
+    prevNote = note
+    if noteAge > 2
+      $('#currentPitch').html(noteStrings[note % 12] + '<br>' + note + '<br>' + tone.freq + '<br>' + tone.stabledb + '<br>' + tone.age)
+
+  window.requestAnimationFrame = window.webkitRequestAnimationFrame  unless window.requestAnimationFrame
+  rafID = window.requestAnimationFrame(updatePitch)
+  return
+
+
   # possible other approach to confidence: sort the array, take the median; go through the array and compute the average deviation
   autoCorrelate buf, audioContext.sampleRate
   
@@ -255,3 +288,7 @@ updatePitch = (time) ->
   window.requestAnimationFrame = window.webkitRequestAnimationFrame  unless window.requestAnimationFrame
   rafID = window.requestAnimationFrame(updatePitch)
   return
+
+
+$(document).keydown (evt) ->
+
